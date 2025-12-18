@@ -8,13 +8,8 @@ export const fetchCoaches = () => api.get("/admin/coaches");
 export const calculatePrice = (payload) =>
   api.post("/pricing/calculate", payload);
 
-export const createBooking = (payload) =>{
-const token=localStorage.getItem("token")
-  api.post("/bookings/book", payload,{
-    headers:{
-        Authorization:`Bearer ${token}`
-    }
-  });
-}
+export const createBooking = (payload) =>
+  api.post("/bookings/book", payload);
+
 export const fetchMyBookings = () =>
   api.get("/bookings/my");

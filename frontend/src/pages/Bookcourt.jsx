@@ -31,14 +31,14 @@ export default function BookCourt() {
   // FETCH INITIAL DATA
   // --------------------
   useEffect(() => {
-    fetchCourts().then(res => setCourts(res.data));
-    fetchTimeSlots().then(res => setSlots(res.data));
-    fetchEquipment().then(res => setEquipment(res.data));
-    fetchCoaches().then(res => setCoaches(res.data));
+    fetchCourts().then(res => setCourts(res.data?.data || []));
+    fetchTimeSlots().then(res => setSlots(res.data?.data || []));
+    fetchEquipment().then(res => setEquipment(res.data?.data || []));
+    fetchCoaches().then(res => setCoaches(res.data?.data || []));
   }, []);
 
   // --------------------
-  // 🔴 PRICE CALCULATION HANDLER (HERE)
+  // PRICE CALCULATION
   // --------------------
   const handlePriceCheck = async () => {
     if (!date || !courtId || !slotId) {
@@ -55,7 +55,7 @@ export default function BookCourt() {
         coachId: coachId || null,
       });
 
-      setPrice(res.data);
+      setPrice(res.data?.data || null);
     } catch (err) {
       alert("Failed to calculate price");
     }
@@ -75,6 +75,7 @@ export default function BookCourt() {
       });
 
       alert("Booking confirmed!");
+      setPrice(null);
     } catch (err) {
       alert("Booking failed");
     }
@@ -93,59 +94,67 @@ export default function BookCourt() {
         <input
           type="date"
           className="border px-4 py-2 rounded w-full"
+          value={date}
           onChange={(e) => setDate(e.target.value)}
         />
 
         <select
           className="border px-4 py-2 rounded w-full"
+          value={courtId}
           onChange={(e) => setCourtId(e.target.value)}
         >
           <option value="">Select Court</option>
-          {courts.map(c => (
-            <option key={c.id} value={c.id}>
-              {c.courtType} – ₹{c.basePrice}
-            </option>
-          ))}
+          {Array.isArray(courts) &&
+            courts.map(c => (
+              <option key={c.id} value={c.id}>
+                {c.courtType} – ₹{c.basePrice}
+              </option>
+            ))}
         </select>
 
         <select
           className="border px-4 py-2 rounded w-full"
+          value={slotId}
           onChange={(e) => setSlotId(e.target.value)}
         >
           <option value="">Select Slot</option>
-          {slots.map(s => (
-            <option key={s.id} value={s.id}>
-              {s.startTime} - {s.endTime}
-            </option>
-          ))}
+          {Array.isArray(slots) &&
+            slots.map(s => (
+              <option key={s.id} value={s.id}>
+                {s.startTime} - {s.endTime}
+              </option>
+            ))}
         </select>
 
         <select
           className="border px-4 py-2 rounded w-full"
+          value={coachId}
           onChange={(e) => setCoachId(e.target.value)}
         >
           <option value="">No Coach</option>
-          {coaches.map(c => (
-            <option key={c.id} value={c.id}>
-              {c.name} – ₹{c.pricePerSlot}
-            </option>
-          ))}
+          {Array.isArray(coaches) &&
+            coaches.map(c => (
+              <option key={c.id} value={c.id}>
+                {c.name} – ₹{c.pricePerSlot}
+              </option>
+            ))}
         </select>
 
-        {/* 🔴 CALLS handlePriceCheck */}
         <Button onClick={handlePriceCheck}>
           Check Price
         </Button>
 
-        {/* PRICE DISPLAY */}
         {price && (
           <div className="border rounded p-4 bg-gray-50">
             <p className="font-medium mb-2">Price Breakdown</p>
-            {price.breakdown.map((b, i) => (
-              <p key={i} className="text-sm text-gray-600">
-                {b.label}: ₹{b.amount}
-              </p>
-            ))}
+
+            {Array.isArray(price.breakdown) &&
+              price.breakdown.map((b, i) => (
+                <p key={i} className="text-sm text-gray-600">
+                  {b.label}: ₹{b.amount}
+                </p>
+              ))}
+
             <p className="font-semibold mt-2">
               Total: ₹{price.totalPrice}
             </p>

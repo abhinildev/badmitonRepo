@@ -25,12 +25,13 @@ export default function MyBookings() {
         )}
 
         <div className="space-y-4">
-          {bookings.map(b => (
-            <div key={b.id} className="border rounded p-4">
-              <p>Date: {b.bookingDate}</p>
-              <p>Total: ₹{b.totalPrice}</p>
-            </div>
-          ))}
+          {Array.isArray(bookings) &&
+            bookings.map(b => (
+              <div key={b.id} className="border rounded p-4">
+                <p>Date: {b.bookingDate}</p>
+                <p>Total: ₹{b.totalPrice}</p>
+              </div>
+            ))}
         </div>
       </main>
     </>

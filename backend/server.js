@@ -9,6 +9,7 @@ import pricingRouter from "./src/router/pricingRoutes.js";
 import timeSlotRouter from "./src/router/timeSlotRoutes.js";
 import TimeSlot from "./src/model/time_slots.js"
 //import bookingRouter from "./src/router/booking.route.js"
+import path from "path"
 import "./src/model/associations.js"
 const app =express()
 dotenv.config()
@@ -19,6 +20,16 @@ app.use(cors({
     origin:"http://localhost:5173",
     credentials: true
 }))
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "public")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+  });
+}
 //routes
 
 app.use("/auth", authRouter);

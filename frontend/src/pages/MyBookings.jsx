@@ -6,7 +6,11 @@ export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
-    fetchMyBookings().then(res => setBookings(res.data.data));
+    fetchMyBookings()
+      .then(res => {
+        setBookings(res.data?.data || []);
+      })
+      .catch(() => setBookings([]));
   }, []);
 
   return (

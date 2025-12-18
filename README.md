@@ -80,8 +80,9 @@
     <li>Pricing rules are additive and stackable</li>
     <li>Pricing rules are configured by admin and not hardcoded</li>
     <li>User roles are limited to user and admin</li>
-    <li>Payment processing is out of scope</li>
+    <li>No stripe payment integration</li>
     <li>Cancellation, waitlist, and refund logic are not implemented (bonus scope)</li>
+    <li>Admin routes although added in backend but frontend ui was made </li>
   </ul>
 
 </body>

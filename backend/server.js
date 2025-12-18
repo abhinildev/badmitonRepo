@@ -11,6 +11,7 @@ import TimeSlot from "./src/model/time_slots.js"
 //import bookingRouter from "./src/router/booking.route.js"
 import path from "path"
 import "./src/model/associations.js"
+import { fileURLToPath } from "url";
 const app =express()
 dotenv.config()
 

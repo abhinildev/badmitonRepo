@@ -1,8 +1,9 @@
 import express, { Router } from "express";
-import { bookCourt } from "../controller/bookingController.js";
+import { bookCourt, getMyBookings } from "../controller/bookingController.js";
+import authMiddleware from "../middleware/auth.middleware.js";
 
-const app=express.Router()
+const router=express.Router()
 
-app.post("/book",bookCourt)
-
-export default Router
+router.post("/book",authMiddleware,bookCourt)
+router.get("/my",authMiddleware,getMyBookings)
+export default router

@@ -9,7 +9,7 @@ if (!process.env.JWT_KEY) {
   throw new Error("JWT_KEY is not defined in environment variables");
 }
 
-// REGISTER
+
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -55,7 +55,7 @@ export const register = async (req, res) => {
   }
 };
 
-// LOGIN
+
 export const login = async (req, res) => {
   const { email, password } = req.body;
 

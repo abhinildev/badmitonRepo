@@ -1,51 +1,94 @@
+import Court from "../../model/courts.model.js";
+import Equipment from "../../model/equipment.model.js";
+import Coach from "../../model/coaches.model.js";
 import PricingRule from "../../model/pricingRules.js";
+import TimeSlot from "../../model/time_slots.js";
 
-export async function calculatePrice(context){
-    let totalPrice=0
-    const breakdown=[]
+export async function calculatePrice(payload) {
+  const {
+    bookingDate,
+    courtId,
+    timeSlotId,
+    equipments = [],
+    coachId,
+  } = payload;
 
-    let courtPrice=context.court.basePrice;
-    breakdown.push({
-        label:"Base court price",
-        amount:courtPrice,
-    })
-    const rules=await PricingRule.findAll({
-        where:{isActive: true}
-    })
-    for (const rule of rules){
-        if(
-            (rule.resourceType==="COURT" || rule.resourceType==="BOOKING") && ruleApplies(rule,context)
-        ){
-            const delta=applyModifier(rule,courtPrice)
-            courtPrice+=delta
-            breakdown.push({
-                label:rule.name,
-                amount:delta,
-            })
-        }
+  if (!bookingDate || !courtId || !timeSlotId) {
+    throw new Error("Missing required booking data");
+  }
+
+  const court = await Court.findByPk(courtId);
+  if (!court) throw new Error("Court not found");
+
+  const slot = await TimeSlot.findByPk(timeSlotId);
+  if (!slot) throw new Error("Time slot not found");
+
+  let total = court.basePrice;
+  const breakdown = [
+    { label: "Base Court Price", amount: court.basePrice },
+  ];
+
+  // 🔹 Apply pricing rules
+  const rules = await PricingRule.findAll({ where: { isActive: true } });
+
+  for (const rule of rules) {
+    let applies = false;
+
+    if (rule.conditionType === "COURT_TYPE") {
+      applies = rule.conditionValue === court.courtType;
     }
 
-  totalPrice += courtPrice
-  if (context.equipments?.length) {
-    for (const eq of context.equipments) {
-      const cost = eq.pricePerSlot * eq.quantity
-      totalPrice += cost
+    if (rule.conditionType === "DAY_OF_WEEK") {
+      const day = new Date(bookingDate).toLocaleString("en-US", {
+        weekday: "short",
+      }).toUpperCase();
+      applies = rule.conditionValue.split(",").includes(day);
+    }
 
-      breakdown.push({
-        label: `${eq.name} x ${eq.quantity}`,
-        amount: cost,
-      })
+    if (rule.conditionType === "TIME_RANGE") {
+      const [start, end] = rule.conditionValue.split("-");
+      applies =
+        slot.startTime >= start && slot.endTime <= end;
+    }
+
+    if (applies) {
+      let add = 0;
+      if (rule.modifierType === "PERCENTAGE") {
+        add = (total * rule.modifierValue) / 100;
+      } else {
+        add = rule.modifierValue;
+      }
+      total += add;
+      breakdown.push({ label: rule.name, amount: add });
     }
   }
-    if(context.coach){
-        totalPrice+=context.coach.pricePerSlot
-        breakdown.push({
-            label:"Coach fee",
-            amount:context.coach.pricePerSlot
-        })
+
+  // 🔹 Equipment
+  for (const eqId of equipments) {
+    const eq = await Equipment.findByPk(eqId);
+    if (eq) {
+      total += eq.pricePerSlot;
+      breakdown.push({
+        label: eq.name,
+        amount: eq.pricePerSlot,
+      });
     }
-    return {
-        totalPrice,
-        breakdown
+  }
+
+  // 🔹 Coach
+  if (coachId) {
+    const coach = await Coach.findByPk(coachId);
+    if (coach) {
+      total += coach.pricePerSlot;
+      breakdown.push({
+        label: "Coach Fee",
+        amount: coach.pricePerSlot,
+      });
     }
+  }
+
+  return {
+    totalPrice: total,
+    breakdown,
+  };
 }

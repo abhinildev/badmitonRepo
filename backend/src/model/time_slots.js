@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import dbconnection from "../config/db.js";
+import Booking from "./bookings.model.js";
 
 const TimeSlot = dbconnection.define(
   "TimeSlot",
@@ -23,5 +24,6 @@ const TimeSlot = dbconnection.define(
     timestamps: true,
   }
 );
+
 
 export default TimeSlot;

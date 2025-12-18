@@ -1,6 +1,10 @@
 import { DataTypes } from "sequelize";
 import dbconnection from "../config/db.js";
-
+import User from "./user.model.js";
+import Coach from "./coaches.model.js";
+import Equipment from "./equipment.model.js";
+import PricingRule from "./pricingRules.js";
+import TimeSlot from "./time_slots.js";
 const Booking = dbconnection.define(
   "Booking",
   {

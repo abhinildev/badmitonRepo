@@ -1,19 +1,31 @@
 import express from "express"
 import dotenv from "dotenv"
+import cors from "cors"
 import dbconnection from "./src/config/db.js"
-import authRouter from "./src/router/auth.route.js"
-import bookRouter from "./src/router/booking.route.js"
-import adminRouter from "./src/router/admin.router.js"
+import authRouter from "./src/router/auth.route.js";
+import adminRouter from "./src/router/admin.router.js";
+import bookingRouter from "./src/router/booking.route.js";
+import pricingRouter from "./src/router/pricingRoutes.js";
+import timeSlotRouter from "./src/router/timeSlotRoutes.js";
 import TimeSlot from "./src/model/time_slots.js"
+//import bookingRouter from "./src/router/booking.route.js"
+import "./src/model/associations.js"
 const app =express()
 dotenv.config()
 
 const port=process.env.PORT;
 app.use(express.json())
+app.use(cors({
+    origin:"http://localhost:5173",
+    credentials: true
+}))
 //routes
-app.use("/auth",authRouter)
-app.use("/getBooking",bookRouter)
-app.use("/admin",adminRouter)
+
+app.use("/auth", authRouter);
+app.use("/admin", adminRouter);
+app.use("/bookings", bookingRouter);
+app.use("/pricing", pricingRouter);
+app.use("/timeslots", timeSlotRouter);
 dbconnection
     .sync({alter:true})
     .then(()=>console.log("Neon is connected"))

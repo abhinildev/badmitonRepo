@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import dbconnection from "../config/db.js";
+import Booking from "./bookings.model.js";
 
 const Court = dbconnection.define(
   "Court",
